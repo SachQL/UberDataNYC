@@ -121,8 +121,29 @@ ON
       ALTER TABLE combined_data
       MODIFY Distance DECIMAL(10,2);
       ```
+7. We can also see a few instaces where the distance travelled was less than 0.1km (100m) but the trips have faires as high as 180 USD. This doesnt seem likely so we will delete these records.
+```sql
+SELECT *
+FROM combined_data
+where Distance < 0.01;
+```
+- Here we can see many entries that dont logically make sense.
+1. It is unlikely that someone would hire an uber for a trip that would take around 1 minutes to walk. 
+2. The fares for these rides range from reasonable prices ~5 USD to very high prices $180 USD.
+- This suggests that there is some error in the recording of longitude and latitude data.
+- We will remove those records from our analysis
+```sql
+SELECT COUNT(*)
+FROM combined_data
+where Distance < 0.01;
 
+-- 239 records found.
 
+DELETE FROM combined_data
+WHERE Distance < 0.01;
+
+--239 records deleted
+```
 ## Data Analysis
 
 - **Analyzing Trip Duration**:
