@@ -121,15 +121,15 @@ ON
       ALTER TABLE combined_data
       MODIFY Distance DECIMAL(10,2);
       ```
-7. We can also see a few instaces where the distance travelled was less than 0.1km (100m) but the trips have faires as high as 180 USD. This doesnt seem likely so we will delete these records.
+7. We can also see a few instaces where the distance travelled was less than 0.1 km (100 m) but the trips have faires as high as 180 USD.
+
 ```sql
 SELECT *
 FROM combined_data
 where Distance < 0.01;
 ```
-- Here we can see many entries that dont logically make sense.
-1. It is unlikely that someone would hire an uber for a trip that would take around 1 minutes to walk. 
-2. The fares for these rides range from reasonable prices ~5 USD to very high prices $180 USD.
+- It is unlikely that someone would hire an uber for a trip that would take around 1 minutes to walk. 
+- The fares for these rides range from reasonable prices ~5 USD to very high prices $180 USD.
 - This suggests that there is some error in the recording of longitude and latitude data.
 - We will remove those records from our analysis
 ```sql
@@ -146,9 +146,100 @@ WHERE Distance < 0.01;
 ```
 ## Data Analysis
 
-- **Analyzing Trip Duration**:
-  ```sql
-  -- anaylsis code here.
+**Analysing Peak Hours**: what times a have the highest volume of rides?
+    - peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
+```sql
+  SELECT 
+    HOUR(TripDate) AS HourOfDay,
+    COUNT(TripID) AS NumberOfRides
+FROM 
+    combined_data
+GROUP BY 
+    HOUR(TripDate)
+ORDER BY 
+    NumberOfRides DESC;
+```
+**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
+
+- To understand this we will look at the percentage of rides by hour for both weekends and weekdays.
+- We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people comuting to work.
+- We can also see a slight difference in weekdays between 5pm and 8pm, probably for a simular reason.
+- On weekends we see a higher percentage of rides in the early morning between 12am and 4am.
+      
+```sql
+-- We will first define a common table expressions (CTE) to count the total number of rides for weekends and weekdays.
+
+WITH DayTypeTotals AS (
+    SELECT 
+        CASE 
+            WHEN DAYOFWEEK(TripDate) BETWEEN 2 AND 6 THEN 'Weekday'
+            ELSE 'Weekend'
+        END AS day_type,
+        COUNT(*) AS total_rides
+    FROM 
+        combined_data
+    GROUP BY 
+        day_type
+)
+
+-- We need to also create a subquery to count the number of rides by hour for both weekdays and weekends.
+
+SELECT 
+    RidesByHour.day_type,
+    RidesByHour.hour,
+    RidesByHour.number_of_rides,
+    (RidesByHour.number_of_rides * 100.0 / DayTypeTotals.total_rides) AS percentage_of_rides -- Calculate the percentage of rides by hour.
+FROM 
+    (SELECT 
+        CASE 
+            WHEN DAYOFWEEK(TripDate) BETWEEN 2 AND 6 THEN 'Weekday'
+            ELSE 'Weekend'
+        END AS day_type,
+        HOUR(TripDate) AS hour,
+        COUNT(*) AS number_of_rides
+    FROM 
+        combined_data 
+    GROUP BY 
+        day_type, hour) AS RidesByHour
+
+JOIN 
+    DayTypeTotals
+ON 
+    RidesByHour.day_type = DayTypeTotals.day_type
+
+ORDER BY 
+    RidesByHour.day_type, RidesByHour.hour;
+```
+**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and dropsoffs?
+- JKF airport longitude and latitude coordinates = 40.644537, -73.783260
+- Note that 0.01 in longitude and lattitude = 0.69 miles
+- Sundays had the highest number of airport rides (72)
+- Wednesdays has the least (48)
+```sql
+SELECT 
+    DAYOFWEEK(TripDate) AS day_of_week,
+    CASE 
+        WHEN DAYOFWEEK(TripDate) = 1 THEN 'Sunday'
+        WHEN DAYOFWEEK(TripDate) = 2 THEN 'Monday'
+        WHEN DAYOFWEEK(TripDate) = 3 THEN 'Tuesday'
+        WHEN DAYOFWEEK(TripDate) = 4 THEN 'Wednesday'
+        WHEN DAYOFWEEK(TripDate) = 5 THEN 'Thursday'
+        WHEN DAYOFWEEK(TripDate) = 6 THEN 'Friday'
+        ELSE 'Saturday'
+    END AS weekday_name,
+    COUNT(*) AS airport_rides_count
+FROM 
+    combined_data
+WHERE 
+    (ABS(PickupLatitude - 40.644537) < 0.01 AND ABS(PickupLongitude - -73.783260) < 0.01)
+    OR
+    (ABS(DropoffLatitude - 40.644537) < 0.01 AND ABS(DropoffLongitude - -73.783260) < 0.01)
+GROUP BY 
+    day_of_week, weekday_name
+ORDER BY 
+    day_of_week;
+```
+
 
 ## Results/Findings: 
 
