@@ -9,7 +9,7 @@
 - [Limitations](#limitations)
 
 ## Project Overview
-A deep dive into the Uber trip data to uncover patterns in trip durations, fares, and locations. The goal is to optimize Uber's operations, anticipate user demand, and improve the overall rider experience in New York City.
+A deep dive into the Uber trip data to uncover patterns in trip durations, fares, and locations. The goal is to optimise Uber's operations, anticipate user demand, and improve the overall rider experience in New York City.
 
 ## Data Cleaning/Preparation
 
@@ -18,7 +18,7 @@ Before diving into the analysis, it was crucial to ensure the data was clean and
 
 Some steps taken:
 
-1. Create a suitable table for my data in the database.
+**1. Create a suitable table for my data in the database.**
   ```sql
   CREATE TABLE UberTrips (
     TripID INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,7 +31,7 @@ Some steps taken:
     NumberOfPassengers INT
   );
   ```
-2. Import data using SQLqrokbench and check all the data has been added correctly.
+**2. Import data using SQLqrokbench and check all the data has been added correctly.**
   - There should be 20,001 entries if all entries were imported correctly.
     
     
@@ -59,9 +59,10 @@ Some steps taken:
           OR DropOffLongitude LIKE '0%'
           ;
         ```
-3. Data enchancement. We can use googles distance matirx API to get extra information about our trips. using the pick up and drop off longitiude and latitiude, we can obtiain trip distances and durations for each trip in our database.
-    - To help mitigate any mistakes i will create a seperate table so we dont ruin our original dataset.
-    - I have decided to use `VARCHAR` since the duration and distance have units associated with them such as 'min' or 'km'
+**3. Data enchancement. We can use googles distance matirx API to get extra information about our trips.** 
+- Using the pick up and drop off longitiude and latitiude, we can obtiain trip distances and durations for each trip in our database.
+- To help mitigate any mistakes i will create a seperate table so we dont ruin our original dataset.
+- I have decided to use `VARCHAR` since the duration and distance have units associated with them such as 'min' or 'km'
     
     ```sql
     CREATE TABLE ubertrips_distances (
@@ -71,7 +72,7 @@ Some steps taken:
     );
     ```
 
-4. I would like to have a table with all the data present so i will simply join the tables.
+**4. I would like to have a table with all the data present so i will simply join the tables.**
 ```sql
 CREATE TABLE combined_data AS
 SELECT 
@@ -93,35 +94,45 @@ ON
     a.TripID = b.TripID;
 ```
 
-5. Our `TripDate` is currently stored as a string, so we will need to modify this column so it is in the correct format.
-    - Using the STR_TO_DATE fuction we can extract the date from our `TripDate`
-      ```sql
-      UPDATE combined_data 
-      SET TripDate = STR_TO_DATE(TripDate, '%Y-%m-%d %H:%i:%s UTC');
-      ```
-    - We can now update our `TripDate` so that it is in the correct format.
-      ```sql
-      ALTER TABLE combined_data
-      MODIFY TripDate DATETIME;
-      ```
-6. likewise, we need to remove the units from our distance column and convert this into a Distance data type.
-    - Update distances in meters to kilometers
-      ```sql
+**5. Our `TripDate` is currently stored as a string, so we will need to modify this column so it is in the correct format.**
+- Using the STR_TO_DATE fuction we can extract the date from our `TripDate`
+    
+  ```sql
+        UPDATE combined_data 
+        SET TripDate = STR_TO_DATE(TripDate, '%Y-%m-%d %H:%i:%s UTC');
+  ```
+    
+- We can now update our `TripDate` so that it is in the correct format.
+    
+  ```sql
+        ALTER TABLE combined_data
+        MODIFY TripDate DATETIME;
+  ```
+    
+**6. likewise, we need to remove the units from our distance column and convert this into a Distance data type.**
+- Update distances in meters to kilometers
+    
+  ```sql
       UPDATE combined_data
       SET Distance = CAST(REPLACE(Distance, ' m', '') AS DECIMAL(10,2)) / 1000
       WHERE Distance LIKE '% m';
-      ```
-    - Update to remove ' km' from the Distance column
-      ```sql
+  ```
+      
+- Update to remove ' km' from the Distance column
+    
+  ```sql
       UPDATE combined_data
       SET Distance = REPLACE(Distance, ' km', '');
-      ```
-    - Update distance column to decimal.
-      ```sql
+  ```
+      
+- Update distance column to decimal.
+    
+  ```sql
       ALTER TABLE combined_data
       MODIFY Distance DECIMAL(10,2);
-      ```
-7. We can also see a few instaces where the distance travelled was less than 0.1 km (100 m) but the trips have faires as high as 180 USD.
+  ```
+      
+**7. We can also see a few instaces where the distance travelled was less than 0.1 km (100 m) but the trips have faires as high as 180 USD.**
 
 ```sql
 SELECT *
@@ -144,10 +155,18 @@ WHERE Distance < 0.01;
 
 --239 records deleted
 ```
+**8. Some Trips have also have 0 passengers which should no be possible.**
+
+```sql
+  DELETE 
+  FROM combined_data
+  WHERE NumberOfPassengers = 0;
+```
+
 ## Data Analysis
 
 **Analysing Peak Hours**: what times a have the highest volume of rides?
-    - peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
+
 ```sql
   SELECT 
     HOUR(TripDate) AS HourOfDay,
@@ -160,11 +179,7 @@ ORDER BY
     NumberOfRides DESC;
 ```
 **Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
-
 - To understand this we will look at the percentage of rides by hour for both weekends and weekdays.
-- We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people comuting to work.
-- We can also see a slight difference in weekdays between 5pm and 8pm, probably for a simular reason.
-- On weekends we see a higher percentage of rides in the early morning between 12am and 4am.
       
 ```sql
 -- We will first define a common table expressions (CTE) to count the total number of rides for weekends and weekdays.
@@ -213,8 +228,7 @@ ORDER BY
 **Airport Peak Hour Analysis**: What are the busiest days for airport pickups and dropsoffs?
 - JKF airport longitude and latitude coordinates = 40.644537, -73.783260
 - Note that 0.01 in longitude and lattitude = 0.69 miles
-- Sundays had the highest number of airport rides (72)
-- Wednesdays has the least (48)
+
 ```sql
 SELECT 
     DAYOFWEEK(TripDate) AS day_of_week,
@@ -240,7 +254,7 @@ ORDER BY
     day_of_week;
 ```
 **Passenger Count Analysis**: Do rides with more passengers have higher fares?
-- Average fares appear to be independant of passenger count.
+
 ```sql
 SELECT NumberOfPassengers, AVG(FarePaid) AS AvgFare
 FROM combined_data
@@ -253,8 +267,8 @@ GROUP BY NumberOfPassengers;
 - Sundays had the highest number of airport rides (72)
 - Wednesdays has the least (48)
 
-**Analysing Peak Hours**: what times a have the highest and lowest volume of rides?
-- peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
+**Analysing Peak Hours**: What times a have the highest and lowest volume of rides?
+- Peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
 
 **Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
 - We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people comuting to work.
@@ -265,6 +279,59 @@ GROUP BY NumberOfPassengers;
 - Average fares appear to be independant of passenger count.
 
 ## Recommendations:
+
+**Airport Peak Hour Analysis**
+
+Passengers
+- Knowing that Sundays are busiest, passengers might consider booking their rides in advance to avoid waiting times or surge pricing.
+- If flexibility allows, passengers can travel on Wednesdays to benefit from potentially lower fares and more readily available rides.
+
+Drivers
+- Being available on Sundays, especially near the airport, can yield more rides and possibly higher earnings due to demand.
+- Wednesdays might be a suitable time for breaks, vehicle maintenance, or focusing on non-airport regions.
+
+Uber (Business)
+- Ensure a higher number of drivers are prompted to be around airports on Sundays. Conversely, reduce the focus on airports on Wednesdays.
+- Consider surge pricing on Sundays when the demand is high and possibly offer promotions or discounts on Wednesdays to stimulate demand.
+
+**Analysing Peak Hours**
+
+Passengers:
+- If possible, passengers could avoid traveling between 5pm-11pm to evade high traffic or surge pricing.
+
+Drivers:
+- Being active during the peak hours (5pm-11pm) can result in more rides and potentially higher earnings.
+- The period from 4am-5am can be an excellent time for breaks or rest.
+
+Uber (Business)
+- Offer incentives for passengers traveling during off-peak hours to balance demand.
+- Implement dynamic pricing during the peak hours, given the high demand.
+
+**Weekday vs Weekends Peak Hour Analysis**
+
+Passengers
+- Those planning late-night activites on weekends should be prepared for potentially longer waiting times post-midnight.
+
+Drivers
+- Drivers might consider aligning their schedules to be available during weekday mornings and weekend post-midnights.
+- By driving at peak times they may be able to take advantage of surge charges, leading to increased earning potential.
+
+Uber (Business)
+- Promote safety campaigns for late-night weekend rides. This could be a good PR campaign and help instill trust in the service for both riders and drivers.
+- Offer weekday morning incentives or promote ride sharing schemes to help grow the number of regular commuters who will provide a frequent revenue stream.
+
+**Passenger Count Analysis**
+
+Passengers
+- By understanding that fares don't signifcantly increase with the number of passengers, they can attempt to share rides or travel in groups to be more cost-effective.
+
+Drivers:
+- For drivers with 6 and 7 seat vehicles, participating in rides sharing schemes may generate more revenue that offering rides to singular groups of 6 or 7.
+
+Uber (Business):
+- Offer promotions for group rides, especially during peak hours, to maximise vehicle utilisation.
+- Re-evaluate the pricing model to ensure it aligns with the operational costs associated with carrying more passengers.
+
 
 ## Limitations:
 
