@@ -12,11 +12,16 @@
 
 ## Project Overview
 
-This project is designed not only to uncover vital insights from Uber's dataset but also to showcase advanced SQL skills and techniques.
+This project is designed not only to uncover vital insights from trip data recorded in NYC, but also to showcase advanced SQL skills and techniques.
 
-A series of increasingly complex SQL queries were crafted to allow the exploration of patterns related to peak hour analysis, passenger count effect on fares, and travel behaviour on weekdays versus weekends. This involved the use of Common Table Expressions (CTEs), various types of JOIN operations, aggregate functions, and conditional logic within SQL.
+A series of increasingly complex SQL queries were crafted to allow the exploration of the data including peak hour analysis, the effect of passenger count on ride fares, and travel behaviour on weekdays and weekends. This involved the use of Common Table Expressions (CTEs), various types of JOIN operations, aggregate functions, and conditional logic within SQL.
 
-The SQL code aimed to transform raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal is threefold: to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
+The SQL code aimed to transform raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal was to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
+
+A dashboard made from this data is available on my tableau public here:
+
+[NYC Uber Data Dashboard](https://public.tableau.com/app/profile/sacha.wallis/viz/UberTripsNYC_16963510001840/UberTripsNYC)
+
 
 ## Dataset Description
 
