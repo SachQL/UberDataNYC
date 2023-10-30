@@ -2,18 +2,36 @@
 
 # Table of Contents:
 - [Project Overview](#project-overview)
+- [Dataset Description](#dataset-description)
 - [Data Cleaning/Preparation](#data-cleaningpreparation)
 - [Data Analysis](#data-analysis)
 - [Results/Findings](#resultsfindings)
 - [Recommendations](#recommendations)
-- [Limitations](#limitations)
+- [Conclusion](#conclusion)
+
 
 ## Project Overview
-A deep dive into the Uber trip data to uncover patterns in trip durations, fares, and locations. The goal is to optimise Uber's operations, anticipate user demand, and improve the overall rider experience in New York City.
+
+This project is designed not only to uncover vital insights from Uber's dataset but also to showcase advanced SQL skills and techniques.
+
+A series of increasingly complex SQL queries were crafted to allow the exploration of patterns related to peak hour analysis, passenger count effect on fares, and travel behaviour on weekdays versus weekends. This involved the use of Common Table Expressions (CTEs), various types of JOIN operations, aggregate functions, and conditional logic within SQL.
+
+The SQL code aimed to transform raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal is threefold: to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
+
+## Dataset Description
+
+- **TripID**: Unique identifier for each trip.
+- **TripDate**: Date and time when the trip was initiated.
+- **PickupLatitude**, **PickupLongitude**: Coordinates for trip start location.
+- **DropOffLatitude**, **DropOffLongitude**: Coordinates for trip end location.
+- **FarePaid**: Amount paid for the trip (USD).
+- **NumberOfPassengers**: Number of passengers on the trip.
+- **Distance**: Calculated distance for the trip in kilometers using Google Distance Matrix API.
+- **Duration**: Estimated trip duration using Google Distance Matrix API.
 
 ## Data Cleaning/Preparation
 
-For This project, i used MySQL to run a local database on my machine and a SQL editior called PopSQL.
+For This project, i used MySQL to run a local database on my machine and a SQL editor called PopSQL.
 Before diving into the analysis, it was crucial to ensure the data was clean and suitable for exploration.
 
 Some steps taken:
@@ -31,16 +49,17 @@ Some steps taken:
     NumberOfPassengers INT
   );
   ```
-**2. Import data using SQLqrokbench and check all the data has been added correctly.**
+**2. Import data using SQL Workbench and check all the data has been added correctly.**
   - There should be 20,001 entries if all entries were imported correctly.
     
-    
-      ```sql
+    ```sql
       SELECT COUNT(*) FROM ubertrips
       ;
-      ```
-     - We can see some errors where it looks like the longitude and lattitude were not recored properly, having a value of `0.000000` (380 entries)       
-        ```sql
+    ```
+    
+- We can see some errors where it looks like the longitude and latitude were not recorded properly, having a value of `0.000000` (380 entries)
+    
+    ```sql
         SELECT COUNT(*) 
         FROM ubertrips 
         WHERE PickupLatitude LIKE '0%'
@@ -48,9 +67,11 @@ Some steps taken:
           OR DropOffLatitude LIKE '0%'
           OR DropOffLongitude LIKE '0%'
         ;
-        ```
-      - For simplicity we will simpy drop these records.
-        ```sql
+    ```
+  
+  - For simplicity we will simply drop these records.
+    
+    ```sql
         DELETE  
         FROM ubertrips
         WHERE PickupLatitude LIKE '0%'
@@ -58,10 +79,11 @@ Some steps taken:
           OR DropOffLatitude LIKE '0%'
           OR DropOffLongitude LIKE '0%'
           ;
-        ```
-**3. Data enchancement. We can use googles distance matirx API to get extra information about our trips.** 
-- Using the pick up and drop off longitiude and latitiude, we can obtiain trip distances and durations for each trip in our database.
-- To help mitigate any mistakes i will create a seperate table so we dont ruin our original dataset.
+    ```
+    
+**3. Data enhancement. We can use googles distance matrix API to get extra information about our trips.** 
+- Using the pick up and drop off longitude and latitude, we can obtain trip distances and durations for each trip in our database.
+- To help mitigate any mistakes I will create a separate table so we don’t ruin our original dataset.
 - I have decided to use `VARCHAR` since the duration and distance have units associated with them such as 'min' or 'km'
     
     ```sql
@@ -95,7 +117,7 @@ ON
 ```
 
 **5. Our `TripDate` is currently stored as a string, so we will need to modify this column so it is in the correct format.**
-- Using the STR_TO_DATE fuction we can extract the date from our `TripDate`
+- Using the STR_TO_DATE function we can extract the date from our `TripDate`
     
   ```sql
         UPDATE combined_data 
@@ -110,7 +132,7 @@ ON
   ```
     
 **6. likewise, we need to remove the units from our distance column and convert this into a Distance data type.**
-- Update distances in meters to kilometers
+- Update distances in meters to kilometres
     
   ```sql
       UPDATE combined_data
@@ -132,7 +154,7 @@ ON
       MODIFY Distance DECIMAL(10,2);
   ```
       
-**7. We can also see a few instaces where the distance travelled was less than 0.1 km (100 m) but the trips have faires as high as 180 USD.**
+**7. We can also see a few instances where the distance travelled was less than 0.1 km (100 m) but the trips have fares as high as 180 USD.**
 
 ```sql
 SELECT *
@@ -155,7 +177,7 @@ WHERE Distance < 0.01;
 
 --239 records deleted
 ```
-**8. Some Trips have also have 0 passengers which should no be possible.**
+**8. Some trips have also have 0 passengers which should not be possible.**
 
 ```sql
   DELETE 
@@ -165,7 +187,7 @@ WHERE Distance < 0.01;
 
 ## Data Analysis
 
-**Analysing Peak Hours**: what times a have the highest volume of rides?
+**Analysing Peak Hours**: What times a have the highest volume of rides?
 
 ```sql
   SELECT 
@@ -178,7 +200,7 @@ GROUP BY
 ORDER BY 
     NumberOfRides DESC;
 ```
-**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
+**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends compared to weekdays?
 - To understand this we will look at the percentage of rides by hour for both weekends and weekdays.
       
 ```sql
@@ -225,9 +247,9 @@ ON
 ORDER BY 
     RidesByHour.day_type, RidesByHour.hour;
 ```
-**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and dropsoffs?
+**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and drop-offs?
 - JKF airport longitude and latitude coordinates = 40.644537, -73.783260
-- Note that 0.01 in longitude and lattitude = 0.69 miles
+- Note that 0.01 in longitude and latitude = 0.69 miles
 
 ```sql
 SELECT 
@@ -263,20 +285,20 @@ GROUP BY NumberOfPassengers;
 
 ## Results/Findings: 
 
-**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and dropsoffs?
+**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and drop-offs?
 - Sundays had the highest number of airport rides (72)
 - Wednesdays has the least (48)
 
 **Analysing Peak Hours**: What times a have the highest and lowest volume of rides?
 - Peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
 
-**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
-- We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people comuting to work.
-- We can also see a slight difference in weekdays between 5pm and 8pm, probably for a simular reason.
+**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends compared to weekdays?
+- We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people commuting to work.
+- We can also see a slight difference in weekdays between 5pm and 8pm, probably for a similar reason.
 - On weekends we see a higher percentage of rides in the early morning between 12am and 4am.
 
 **Passenger Count Analysis**: Do rides with more passengers have higher fares?
-- Average fares appear to be independant of passenger count.
+- Average fares appear to be independent of passenger count.
 
 ## Recommendations:
 
@@ -310,20 +332,20 @@ Uber (Business)
 **Weekday vs Weekends Peak Hour Analysis**
 
 Passengers
-- Those planning late-night activites on weekends should be prepared for potentially longer waiting times post-midnight.
+- Those planning late-night activities on weekends should be prepared for potentially longer waiting times post-midnight.
 
 Drivers
 - Drivers might consider aligning their schedules to be available during weekday mornings and weekend post-midnights.
 - By driving at peak times they may be able to take advantage of surge charges, leading to increased earning potential.
 
 Uber (Business)
-- Promote safety campaigns for late-night weekend rides. This could be a good PR campaign and help instill trust in the service for both riders and drivers.
+- Promote safety campaigns for late-night weekend rides. This could be a good PR campaign and help instil trust in the service for both riders and drivers.
 - Offer weekday morning incentives or promote ride sharing schemes to help grow the number of regular commuters who will provide a frequent revenue stream.
 
 **Passenger Count Analysis**
 
 Passengers
-- By understanding that fares don't signifcantly increase with the number of passengers, they can attempt to share rides or travel in groups to be more cost-effective.
+- By understanding that fares don't significantly increase with the number of passengers, they can attempt to share rides or travel in groups to be more cost-effective.
 
 Drivers:
 - For drivers with 6 and 7 seat vehicles, participating in rides sharing schemes may generate more revenue that offering rides to singular groups of 6 or 7.
@@ -332,12 +354,23 @@ Uber (Business):
 - Offer promotions for group rides, especially during peak hours, to maximise vehicle utilisation.
 - Re-evaluate the pricing model to ensure it aligns with the operational costs associated with carrying more passengers.
 
+## Conclusion
 
-## Limitations:
+The data-driven insights revealed the following:
+- Sundays are the peak days for airport rides, while Wednesdays are the least popular.
+- Peak hours in general are from 5pm-11pm, indicating when the demand is at its highest.
+- There's a distinct difference in ride patterns between weekdays and weekends, with weekdays seeing spikes during typical commuting hours and weekends having a high-volume post-midnight.
+- Interestingly, the fare amount doesn't necessarily increase with the number of passengers in a ride.
+
+The recommendations drawn from these insights aim to enhance the experience for passengers, optimise working hours for drivers, and provide Uber with strategies to improve its service offerings and operational efficiency. By acting upon these recommendations, Uber can remain a leader in the ride-sharing industry, ensuring satisfaction for both its drivers and passengers, while also ensuring profitable operations.
+
+It's essential for businesses today to utilise data-driven insights to remain competitive, responsive, and customer-centric. This project exemplifies how data can be harnessed to make informed decisions that cater to the needs and preferences of all stakeholders involved.
+
+
 
 ## Other
 
-Google distance matrix API code.
+**Google distance matrix API code.**
 ```python
 import requests
 import pymysql
