@@ -12,11 +12,11 @@
 
 ## Project Overview
 
-This project is designed not only to uncover vital insights from trip data recorded in NYC, but also to showcase advanced SQL skills and techniques.
+This project uncovers vital insights from trip data recorded in NYC and showcases advanced SQL skills and techniques.
 
-A series of increasingly complex SQL queries were crafted to allow the exploration of the data including peak hour analysis, the effect of passenger count on ride fares, and travel behaviour on weekdays and weekends. This involved the use of Common Table Expressions (CTEs), various types of JOIN operations, aggregate functions, and conditional logic within SQL.
+A series of increasingly complex SQL queries were crafted to enable the exploration of the data including peak hour analysis, the effect of passenger count on ride fares, and travel behaviour on weekdays and weekends. This involved the use of Common Table Expressions (CTEs), various types of JOIN operations, aggregate functions, and conditional logic within SQL.
 
-The SQL code aimed to transform raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal was to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
+The SQL code transforms raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal was to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
 
 A dashboard made from this data is available on my tableau public here: [NYC Uber Data Dashboard](https://public.tableau.com/app/profile/sachql/viz/UberTripsNYC_16963510001840/UberTripsNYC)
 
@@ -34,7 +34,7 @@ A dashboard made from this data is available on my tableau public here: [NYC Ube
 
 ## Data Cleaning/Preparation
 
-For This project, i used MySQL to run a local database on my machine and a SQL editor called PopSQL.
+For This project, I used MySQL to run a local database on my machine and a SQL editor called PopSQL.
 Before diving into the analysis, it was crucial to ensure the data was clean and suitable for exploration.
 
 Some steps taken:
@@ -97,7 +97,7 @@ Some steps taken:
     );
     ```
 
-**4. I would like to have a table with all the data present so i will simply join the tables.**
+**4. I would like to have a table with all the data present so I will simply join the tables.**
 ```sql
 CREATE TABLE combined_data AS
 SELECT 
@@ -322,7 +322,7 @@ Uber (Business)
 **Analysing Peak Hours**
 
 Passengers:
-- If possible, passengers could avoid traveling between 5pm-11pm to evade high traffic or surge pricing.
+- If possible, passengers could avoid traveling between 5pm-11pm to avoid high traffic or surge pricing.
 
 Drivers:
 - Being active during the peak hours (5pm-11pm) can result in more rides and potentially higher earnings.
@@ -338,7 +338,7 @@ Passengers
 - Those planning late-night activities on weekends should be prepared for potentially longer waiting times post-midnight.
 
 Drivers
-- Drivers might consider aligning their schedules to be available during weekday mornings and weekend post-midnights.
+- Drivers might consider aligning their schedules to be available during weekday mornings and weekends post-midnight.
 - By driving at peak times they may be able to take advantage of surge charges, leading to increased earning potential.
 
 Uber (Business)
