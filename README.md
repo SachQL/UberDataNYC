@@ -18,9 +18,7 @@ A series of increasingly complex SQL queries were crafted to allow the explorati
 
 The SQL code aimed to transform raw data into actionable information. By diving deep into the data using these SQL techniques, the project provides actionable recommendations for three key stakeholders: passengers, drivers, and Uber as a company. The end goal was to enhance the passenger experience, to optimize driver earnings, and to provide Uber with strategies to further enhance its services and profitability, all while highlighting the power and flexibility of SQL as a tool for data analysis.
 
-A dashboard made from this data is available on my tableau public here:
-
-[NYC Uber Data Dashboard](https://public.tableau.com/app/profile/sacha.wallis/viz/UberTripsNYC_16963510001840/UberTripsNYC)
+A dashboard made from this data is available on my tableau public here: [NYC Uber Data Dashboard](https://public.tableau.com/app/profile/sacha.wallis/viz/UberTripsNYC_16963510001840/UberTripsNYC)
 
 
 ## Dataset Description
