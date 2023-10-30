@@ -239,9 +239,30 @@ GROUP BY
 ORDER BY 
     day_of_week;
 ```
-
+**Passenger Count Analysis**: Do rides with more passengers have higher fares?
+- Average fares appear to be independant of passenger count.
+```sql
+SELECT NumberOfPassengers, AVG(FarePaid) AS AvgFare
+FROM combined_data
+GROUP BY NumberOfPassengers;
+```
 
 ## Results/Findings: 
+
+**Airport Peak Hour Analysis**: What are the busiest days for airport pickups and dropsoffs?
+- Sundays had the highest number of airport rides (72)
+- Wednesdays has the least (48)
+
+**Analysing Peak Hours**: what times a have the highest and lowest volume of rides?
+- peak hours are in the evening 5pm-11pm with the quietest hours being 4am-5am.
+
+**Weekday vs Weekends Peak Hour Analysis**: Do we see differences in the peak hours on weekends comapred to weekdays?
+- We can see that there is a higher percentage of rides on weekdays between 6am and 10am, likely corresponding to people comuting to work.
+- We can also see a slight difference in weekdays between 5pm and 8pm, probably for a simular reason.
+- On weekends we see a higher percentage of rides in the early morning between 12am and 4am.
+
+**Passenger Count Analysis**: Do rides with more passengers have higher fares?
+- Average fares appear to be independant of passenger count.
 
 ## Recommendations:
 
